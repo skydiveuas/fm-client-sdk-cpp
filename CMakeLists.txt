@@ -147,9 +147,9 @@ set(HEADERS
 
 set(CMAKE_MAKE_PROGRAM "${CMAKE_MAKE_PROGRAM} -j4")
 
-add_library(fm_sdk STATIC ${SOURCES} ${HEADERS} ${BOOST_FILES})
+add_library(fm-sdk STATIC ${SOURCES} ${HEADERS} ${BOOST_FILES})
 
-target_link_libraries(fm_sdk
+target_link_libraries(fm-sdk
     ${Boost_LIBRARIES}
     protobuf::libprotobuf
     gRPC::grpc++
