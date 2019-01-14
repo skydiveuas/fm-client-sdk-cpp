@@ -1,0 +1,3 @@
+[submodule "fm-client-proto"]
+	path = fm-client-proto
+	url = https://github.com/skydiveuas/fm-client-proto.git
