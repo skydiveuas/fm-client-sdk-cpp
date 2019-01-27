@@ -33,8 +33,7 @@ public:
     IStateMachine(Log _log, boost::asio::io_service& _ioService) :
         log(_log),
         ioService(_ioService),
-        processing(false),
-        lastTimerId(NOT_TIMER_ID)
+        processing(false)
     {
     }
 
@@ -64,18 +63,12 @@ public:
 
     std::shared_ptr<Timer> executeAfter(Task task, size_t timeout)
     {
-        lastTimerId++;
-        if (lastTimerId == NOT_TIMER_ID) lastTimerId++;
-        return std::make_shared<Timer>(task, timeout, lastTimerId,
-                                       std::bind(&IStateMachine::cancel, this, std::placeholders::_1));
+        return std::make_shared<Timer>(task, timeout);
     }
 
     std::shared_ptr<Timer> executeEvery(Task task, size_t delay, size_t interval)
     {
-        lastTimerId++;
-        if (lastTimerId == NOT_TIMER_ID) lastTimerId++;
-        return std::make_shared<Timer>(task, delay, interval, lastTimerId,
-                                       std::bind(&IStateMachine::cancel, this, std::placeholders::_1));
+        return std::make_shared<Timer>(task, delay, interval);
     }
 
     void defer(const std::shared_ptr<const _Event> event)
@@ -121,8 +114,6 @@ private:
     std::unique_ptr<IState<_Event>> state;
     std::deque<std::shared_ptr<const _Event>> deferred;
 
-    size_t lastTimerId;
-
     void execute(Task task)
     {
         ioService.post(task);
@@ -141,11 +132,6 @@ private:
         {
             processing.store(false);
         }
-    }
-
-    void cancel(size_t id)
-    {
-
     }
 
     void handleEvent(const std::shared_ptr<const _Event> event)
