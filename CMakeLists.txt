@@ -69,6 +69,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/source/traffic/ChannelImpl.cpp
     ${PROJECT_SOURCE_DIR}/source/traffic/socket/ISocket.cpp
     ${PROJECT_SOURCE_DIR}/source/traffic/socket/TcpSocket.cpp
+    ${PROJECT_SOURCE_DIR}/source/traffic/socket/TlsTcpSocket.cpp
     ${PROJECT_SOURCE_DIR}/source/traffic/socket/UdpSocket.cpp
     # genetated files
     ${PROJECT_SOURCE_DIR}/generated/common/channel_management.pb.cc
@@ -142,6 +143,7 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/include/traffic/ChannelImpl.hpp
     ${PROJECT_SOURCE_DIR}/include/traffic/socket/ISocket.hpp
     ${PROJECT_SOURCE_DIR}/include/traffic/socket/TcpSocket.hpp
+    ${PROJECT_SOURCE_DIR}/include/traffic/socket/TlsTcpSocket.hpp
     ${PROJECT_SOURCE_DIR}/include/traffic/socket/UdpSocket.hpp
     )
 

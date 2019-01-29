@@ -40,9 +40,9 @@ public:
 
     ChannelsHandler& getChannelsHandler();
 
-    std::unique_ptr<com::fleetmgr::interfaces::Location> getLocation();
+    boost::asio::io_service& getIoService();
 
-    std::shared_ptr<traffic::socket::ISocket> createSocket(const com::fleetmgr::interfaces::Protocol);
+    std::unique_ptr<com::fleetmgr::interfaces::Location> getLocation();
 
     void openFacadeConnection(const std::string&, const int);
 

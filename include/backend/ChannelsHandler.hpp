@@ -49,6 +49,8 @@ private:
     std::unordered_map<long, traffic::ChannelImpl> channels;
 
     void trace(const std::string& message);
+
+    std::shared_ptr<traffic::socket::ISocket> buildSocket(const com::fleetmgr::interfaces::ChannelResponse&) const;
 };
 
 } // backend

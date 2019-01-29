@@ -6,9 +6,6 @@
 #include "backend/HeartbeatHandler.hpp"
 #include "backend/ChannelsHandler.hpp"
 
-#include "traffic/socket/TcpSocket.hpp"
-#include "traffic/socket/UdpSocket.hpp"
-
 #include "event/input/connection/Received.hpp"
 
 #include "traffic/ChannelImpl.hpp"
@@ -54,24 +51,14 @@ ChannelsHandler& ClientBackend::getChannelsHandler()
     return channelsHandler;
 }
 
+boost::asio::io_service& ClientBackend::getIoService()
+{
+    return ioService;
+}
+
 std::unique_ptr<Location> ClientBackend::getLocation()
 {
     return listener.getLocation();
-}
-
-std::shared_ptr<ISocket> ClientBackend::createSocket(const Protocol protocol)
-{
-    switch (protocol)
-    {
-    case Protocol::TCP:
-        return std::make_unique<TcpSocket>(ioService);
-
-    case Protocol::UDP:
-        return std::make_unique<UdpSocket>(ioService);
-
-    default:
-        throw std::runtime_error("Unexpected Protocol type");
-    }
 }
 
 void ClientBackend::openFacadeConnection(const std::string& host, const int port)
@@ -175,7 +162,7 @@ void ClientBackend::proceedReader()
         std::chrono::milliseconds(1);
 
     // Bartek is it really the best way of handling asynchronous reading?
-    // Bartek this will cause posing a lot of 1ms long dummy tasks...
+    // Bartek this will cause posting a lot of 1ms long dummy tasks...
     // Bartek would prefere smth similaral as Java-style onNext callback
     completionQueue.AsyncNext(&tag, &ok, deadline);
 

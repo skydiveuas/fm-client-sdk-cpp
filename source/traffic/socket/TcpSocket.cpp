@@ -15,16 +15,23 @@ TcpSocket::TcpSocket(boost::asio::io_service& _ioService) :
 
 void TcpSocket::connect(const std::string& host, const int port)
 {
-    //std::cout << "TcpSocket::connect" << std::endl;
+    //std::cout << "TcpSocket::connect(" << host << ":" << port << ")" << std::endl;
     ip::tcp::resolver resolver(ioService);
     auto endpoint = resolver.resolve(host, std::to_string(port));
-    async_connect(socket, endpoint, [this] (std::error_code ec, ip::tcp::endpoint)
-    {
-        if (!ec)
-        {
-        }
-    });
+    boost::asio::connect(socket, endpoint);
 }
+
+void TcpSocket::sendBlocking(const DataPacket dataPacket)
+{
+    sendBuffer.emplace_back(dataPacket.first, dataPacket.first + dataPacket.second);
+    size_t sent = socket.write_some(buffer(sendBuffer.back().data(), sendBuffer.back().size()));
+    if (dataPacket.second != sent)
+    {
+        throw std::runtime_error("Could not send enough data");
+    }
+    sendBuffer.pop_front();
+}
+
 
 size_t TcpSocket::readBlocking(uint8_t* _buffer, size_t _size)
 {
@@ -39,9 +46,11 @@ void TcpSocket::startReading()
 void TcpSocket::send(const DataPacket dataPacket)
 {
     //std::cout << "TcpSocket::send" << std::endl;
-    async_write(socket, buffer(dataPacket.first, dataPacket.second),
+    sendBuffer.emplace_back(dataPacket.first, dataPacket.first + dataPacket.second);
+    socket.async_write_some(buffer(sendBuffer.back().data(), sendBuffer.back().size()),
                 [this](boost::system::error_code ec, std::size_t /*length*/)
     {
+        sendBuffer.pop_front();
         if (ec)
         {
             std::cout << "BoostTcpSocket::send error: " + ec.message() << std::endl;
@@ -58,12 +67,14 @@ void TcpSocket::disconnect()
 void TcpSocket::doRead()
 {
     //std::cout << "TcpSocket::doRead" << std::endl;
-    socket.async_read_some(buffer(readBuffer.data(), READ_BUFFER_SIZE),
+    readBuffer.emplace_back(1024);
+    socket.async_read_some(buffer(readBuffer.back(), 1024),
                            [this](boost::system::error_code ec, std::size_t length)
     {
         if (!ec)
         {
-            listener.load()->onReceived(DataPacket(readBuffer.data(), length));
+            listener.load()->onReceived(DataPacket(readBuffer.front().data(), length));
+            readBuffer.pop_front();
             doRead();
         }
         else

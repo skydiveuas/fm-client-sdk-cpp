@@ -23,12 +23,14 @@ namespace socket
  * Date: 2018-01-05
  * Description:
  */
-class UdpSocket : public traffic::socket::ISocket
+class UdpSocket : public ISocket
 {
 public:
     UdpSocket(boost::asio::io_service&);
 
     void connect(const std::string&, const int) override;
+
+    void sendBlocking(const DataPacket) override;
 
     size_t readBlocking(uint8_t*, size_t) override;
 

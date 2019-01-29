@@ -5,7 +5,8 @@
 
 #include <boost/asio.hpp>
 
-#include <array>
+#include <deque>
+#include <vector>
 
 namespace fm
 {
@@ -21,12 +22,14 @@ namespace socket
  * Date: 2018-01-05
  * Description:
  */
-class TcpSocket : public traffic::socket::ISocket
+class TcpSocket : public ISocket
 {
 public:
     TcpSocket(boost::asio::io_service&);
 
     void connect(const std::string&, const int) override;
+
+    void sendBlocking(const DataPacket) override;
 
     size_t readBlocking(uint8_t*, size_t) override;
 
@@ -37,12 +40,10 @@ public:
     void disconnect() override;
 
 private:
-    // TODO Bartek change arrays to RoundBuffers
-    static constexpr size_t READ_BUFFER_SIZE = 1024;
-    std::array<uint8_t, READ_BUFFER_SIZE> readBuffer;
-
-    static constexpr size_t SEND_BUFFER_SIZE = 1024;
-    std::array<uint8_t, SEND_BUFFER_SIZE> sendBuffer;
+    // TODO Bartek change buffers to more memory efficnient structures
+    // TODO Bartek for example boost::circular_buffer
+    std::deque<std::vector<uint8_t>> sendBuffer;
+    std::deque<std::vector<uint8_t>> readBuffer;
 
     boost::asio::io_service& ioService;
     boost::asio::ip::tcp::socket socket;

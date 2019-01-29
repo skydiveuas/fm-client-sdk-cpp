@@ -39,6 +39,8 @@ public:
 
     virtual void connect(const std::string&, const int) = 0;
 
+    virtual void sendBlocking(const DataPacket) = 0;
+
     virtual size_t readBlocking(uint8_t* buffer, size_t size) = 0;
 
     virtual void startReading() = 0;

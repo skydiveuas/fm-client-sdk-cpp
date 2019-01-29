@@ -2,8 +2,13 @@
 
 #include "backend/ClientBackend.hpp"
 
+#include "traffic/socket/TcpSocket.hpp"
+#include "traffic/socket/TlsTcpSocket.hpp"
+#include "traffic/socket/UdpSocket.hpp"
+
 using namespace fm;
 using namespace fm::backend;
+using namespace fm::traffic::socket;
 
 using namespace com::fleetmgr::interfaces;
 
@@ -51,7 +56,7 @@ std::vector<traffic::IChannel*> ChannelsHandler::validateChannels(const std::vec
     for (const ChannelResponse& c : toValidate)
     {
         trace("Opening channel id: " + std::to_string(c.id()));
-        std::shared_ptr<traffic::socket::ISocket> socket = backend.createSocket(Protocol::UDP);
+        std::shared_ptr<ISocket> socket = buildSocket(c);
         auto pair = channels.emplace(std::piecewise_construct,
                                      std::forward_as_tuple(c.id()),
                                      std::forward_as_tuple(c.id(), socket));
@@ -115,4 +120,35 @@ void ChannelsHandler::setOwned(long id, bool owned)
 void ChannelsHandler::trace(const std::string& message)
 {
     backend.trace(message);
+}
+
+std::shared_ptr<ISocket> ChannelsHandler::buildSocket(const ChannelResponse& parameters) const
+{
+    switch (parameters.protocol())
+    {
+    case Protocol::UDP:
+        switch (parameters.security())
+        {
+        case Security::PLAIN_TEXT:
+            return std::make_unique<UdpSocket>(backend.getIoService());
+
+        case Security::TLS:
+            throw std::runtime_error("UDP encryption not supported");
+        }
+        break;
+
+    case Protocol::TCP:
+        switch (parameters.security())
+        {
+        case Security::PLAIN_TEXT:
+            return std::make_unique<TcpSocket>(backend.getIoService());
+
+        case Security::TLS:
+            return std::make_unique<TlsTcpSocket>(backend.getIoService());
+        }
+        break;
+
+    default:
+        throw std::runtime_error("Unexpected Protocol or Security type");
+    }
 }

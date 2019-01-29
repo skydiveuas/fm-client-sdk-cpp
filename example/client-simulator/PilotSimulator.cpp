@@ -35,7 +35,8 @@ void PilotSimulator::start(const std::string& coreAddress,
         std::vector<ChannelRequest> channels;
         ChannelRequest channelsReq;
         channelsReq.set_id(1);
-        channelsReq.set_protocol(Protocol::UDP);
+        channelsReq.set_protocol(Protocol::TCP);
+        channelsReq.set_security(Security::PLAIN_TEXT);
         channelsReq.set_priority(Priority::NEAR_REAL_TIME);
         channels.push_back(channelsReq);
         channelsReq.set_id(8);

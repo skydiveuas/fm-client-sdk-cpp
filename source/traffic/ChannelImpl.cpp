@@ -38,7 +38,7 @@ bool ChannelImpl::open(const std::string& ip, const int port, const std::string&
         return false;
     }
 
-    socket->send(ISocket::DataPacket(packet.data(), packet.size()));
+    socket->sendBlocking(ISocket::DataPacket(packet.data(), packet.size()));
 
     std::vector<uint8_t> responseBuffer(256);
     size_t received;

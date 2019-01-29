@@ -20,6 +20,17 @@ void UdpSocket::connect(const std::string& host, const int port)
     remoteEndpoint = *resolver.resolve(host, std::to_string(port));
 }
 
+void UdpSocket::sendBlocking(const DataPacket dataPacket)
+{
+    sendBuffer.emplace_back(dataPacket.first, dataPacket.first + dataPacket.second);
+    size_t sent = socket.send_to(buffer(sendBuffer.back().data(), sendBuffer.back().size()), remoteEndpoint);
+    if (dataPacket.second != sent)
+    {
+        throw std::runtime_error("Could not send enough data");
+    }
+    sendBuffer.pop_front();
+}
+
 size_t UdpSocket::readBlocking(uint8_t* _buffer, size_t _size)
 {
     return socket.receive_from(buffer(_buffer, _size), remoteEndpoint);
