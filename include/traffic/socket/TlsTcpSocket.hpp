@@ -1,6 +1,8 @@
 #ifndef FM_TRAFFIC_SOCKET_TLSTCPSOCKET_HPP
 #define FM_TRAFFIC_SOCKET_TLSTCPSOCKET_HPP
 
+#include <boost/asio/ssl/stream.hpp>
+
 #include "traffic/socket/TcpSocket.hpp"
 
 namespace fm
@@ -17,10 +19,34 @@ namespace socket
  * Date: 2018-01-29
  * Description:
  */
-class TlsTcpSocket : public TcpSocket
+class TlsTcpSocket : public ISocket
 {
 public:
     TlsTcpSocket(boost::asio::io_service&);
+
+    void connect(const std::string&, const int) override;
+
+    void sendBlocking(const DataPacket) override;
+
+    size_t readBlocking(uint8_t*, size_t) override;
+
+    void startReading() override;
+
+    void send(const DataPacket) override;
+
+    void disconnect() override;
+
+private:
+    // TODO Bartek change buffers to more memory efficnient structures
+    // TODO Bartek for example boost::circular_buffer
+    std::deque<std::vector<uint8_t>> sendBuffer;
+    std::deque<std::vector<uint8_t>> readBuffer;
+
+    boost::asio::io_service& ioService;
+    boost::asio::ssl::context sslContext;
+    boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket;
+
+    void doRead();
 };
 
 } // socket

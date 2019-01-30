@@ -41,7 +41,7 @@ std::string HttpsClient::execute(const std::string& path, Method method, const s
     // The SSL context is required, and holds certificates
     ssl::context ctx(ssl::context::sslv23_client);
 
-    // Verify the remote server's certificate
+    // TODO enable certificate verification after tests!
     ctx.set_verify_mode(ssl::verify_none);
 
     // These objects perform our I/O

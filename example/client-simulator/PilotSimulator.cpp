@@ -36,12 +36,16 @@ void PilotSimulator::start(const std::string& coreAddress,
         ChannelRequest channelsReq;
         channelsReq.set_id(1);
         channelsReq.set_protocol(Protocol::TCP);
-        channelsReq.set_security(Security::PLAIN_TEXT);
+        channelsReq.set_security(Security::TLS);
         channelsReq.set_priority(Priority::NEAR_REAL_TIME);
         channels.push_back(channelsReq);
         channelsReq.set_id(8);
+        channelsReq.set_protocol(Protocol::TCP);
+        channelsReq.set_security(Security::PLAIN_TEXT);
         channels.push_back(channelsReq);
         channelsReq.set_id(11);
+        channelsReq.set_protocol(Protocol::UDP);
+        channelsReq.set_security(Security::PLAIN_TEXT);
         channels.push_back(channelsReq);
         std::shared_ptr<const Operate> o = std::make_shared<const Operate>(deviceId, channels);
         ioService.post([this, o] ()
