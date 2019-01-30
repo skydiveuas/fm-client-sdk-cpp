@@ -64,7 +64,7 @@ void TlsTcpSocket::send(const DataPacket dataPacket)
         sendBuffer.pop_front();
         if (ec)
         {
-            std::cout << "BoostTcpSocket::send error: " + ec.message() << std::endl;
+            std::cout << "TlsTcpSocket::send error: " + ec.message() << std::endl;
         }
     });
 }
@@ -90,7 +90,7 @@ void TlsTcpSocket::doRead()
         }
         else
         {
-            std::cout << "BoostTcpSocket::doRead error: " + ec.message() << std::endl;
+            std::cout << "TlsTcpSocket::doRead error: " + ec.message() << std::endl;
         }
     });
 }
