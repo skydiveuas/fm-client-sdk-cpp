@@ -22,7 +22,7 @@ namespace socket
 class TlsTcpSocket : public ISocket
 {
 public:
-    TlsTcpSocket(boost::asio::io_service&);
+    TlsTcpSocket(boost::asio::io_service&, boost::asio::ssl::context&);
 
     void connect(const std::string&, const int) override;
 
@@ -37,7 +37,6 @@ public:
     void disconnect() override;
 
 private:
-    boost::asio::ssl::context sslContext;
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket;
 
     void doRead();

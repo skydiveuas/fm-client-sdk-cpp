@@ -10,9 +10,8 @@ using namespace fm::traffic::socket;
 
 using namespace boost::asio;
 
-TlsTcpSocket::TlsTcpSocket(boost::asio::io_service& _ioService) :
+TlsTcpSocket::TlsTcpSocket(boost::asio::io_service& _ioService, boost::asio::ssl::context& sslContext) :
     ISocket(_ioService),
-    sslContext(boost::asio::ssl::context::tls),
     socket(ioService, sslContext)
 {
 }
@@ -20,16 +19,11 @@ TlsTcpSocket::TlsTcpSocket(boost::asio::io_service& _ioService) :
 void TlsTcpSocket::connect(const std::string& host, const int port)
 {
     //std::cout << "TlsTcpSocket::connect(" << host << ":" << port << ")" << std::endl;
-    // TODO enable certificate verification after tests!
-    socket.set_verify_mode(ssl::verify_none);
-
     ip::tcp::resolver resolver(ioService);
     auto endpoint = resolver.resolve(host, std::to_string(port));
+
     socket.lowest_layer().connect(*endpoint);
-
-    socket.handshake(ssl::stream<boost::asio::ip::tcp::socket>::client);
-
-    std::cout << "TlsTcpSocket::connect done" << std::endl;
+    socket.handshake(ssl::stream<ip::tcp::socket>::client);
 }
 
 void TlsTcpSocket::sendBlocking(const DataPacket dataPacket)

@@ -5,6 +5,8 @@
 
 #include "common/channel_management.pb.h"
 
+#include <boost/asio/ssl.hpp>
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -46,11 +48,13 @@ public:
 private:
     ClientBackend& backend;
 
+    boost::asio::ssl::context sslContext;
+
     std::unordered_map<long, traffic::ChannelImpl> channels;
 
     void trace(const std::string& message);
 
-    std::shared_ptr<traffic::socket::ISocket> buildSocket(const com::fleetmgr::interfaces::ChannelResponse&) const;
+    std::shared_ptr<traffic::socket::ISocket> buildSocket(const com::fleetmgr::interfaces::ChannelResponse&);
 };
 
 } // backend

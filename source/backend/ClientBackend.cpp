@@ -159,7 +159,7 @@ void ClientBackend::proceedReader()
     bool ok = false;
 
     auto deadline = std::chrono::system_clock::now() +
-        std::chrono::milliseconds(1);
+        std::chrono::milliseconds(1000);
 
     // Bartek is it really the best way of handling asynchronous reading?
     // Bartek this will cause posting a lot of 1ms long dummy tasks...

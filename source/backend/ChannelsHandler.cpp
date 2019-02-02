@@ -12,9 +12,14 @@ using namespace fm::traffic::socket;
 
 using namespace com::fleetmgr::interfaces;
 
+using namespace boost::asio;
+
 ChannelsHandler::ChannelsHandler(ClientBackend& _backend) :
-    backend(_backend)
+    backend(_backend),
+    sslContext(boost::asio::ssl::context::tls)
 {
+    // TODO enable certificate verification after tests!
+    sslContext.set_verify_mode(ssl::verify_none);
 }
 
 std::vector<traffic::IChannel*> ChannelsHandler::getChannels()
@@ -122,7 +127,7 @@ void ChannelsHandler::trace(const std::string& message)
     backend.trace(message);
 }
 
-std::shared_ptr<ISocket> ChannelsHandler::buildSocket(const ChannelResponse& parameters) const
+std::shared_ptr<ISocket> ChannelsHandler::buildSocket(const ChannelResponse& parameters)
 {
     switch (parameters.protocol())
     {
@@ -144,7 +149,7 @@ std::shared_ptr<ISocket> ChannelsHandler::buildSocket(const ChannelResponse& par
             return std::make_unique<TcpSocket>(backend.getIoService());
 
         case Security::TLS:
-            return std::make_unique<TlsTcpSocket>(backend.getIoService());
+            return std::make_unique<TlsTcpSocket>(backend.getIoService(), sslContext);
         }
         break;
 
