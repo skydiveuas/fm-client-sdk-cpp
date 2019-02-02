@@ -8,7 +8,7 @@ using namespace fm::traffic::socket;
 using namespace boost::asio;
 
 TcpSocket::TcpSocket(boost::asio::io_service& _ioService) :
-    ioService(_ioService),
+    ISocket(_ioService),
     socket(ioService)
 {
 }

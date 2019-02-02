@@ -8,7 +8,7 @@ using namespace fm::traffic::socket;
 using namespace boost::asio;
 
 UdpSocket::UdpSocket(boost::asio::io_service& _ioService) :
-    ioService(_ioService),
+    ISocket(_ioService),
     socket(ioService, ip::udp::endpoint(ip::udp::v4(), 0))
 {
 }

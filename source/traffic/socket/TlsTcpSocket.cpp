@@ -11,7 +11,7 @@ using namespace fm::traffic::socket;
 using namespace boost::asio;
 
 TlsTcpSocket::TlsTcpSocket(boost::asio::io_service& _ioService) :
-    ioService(_ioService),
+    ISocket(_ioService),
     sslContext(boost::asio::ssl::context::tls),
     socket(ioService, sslContext)
 {

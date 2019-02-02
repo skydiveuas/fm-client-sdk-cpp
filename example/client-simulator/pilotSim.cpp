@@ -7,7 +7,7 @@ int main(int, char**)
 //    const std::string host = "edge.zhjixouahfpdviebd.com";
 //    const int port = 443;
 
-    const std::string host = "192.168.56.1";
+    const std::string host = "192.168.1.69";
     const int port = 14010;
 
     std::cout << "Staring Pilot simulation..." << std::endl;

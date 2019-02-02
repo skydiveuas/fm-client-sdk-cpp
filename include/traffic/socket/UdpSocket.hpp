@@ -41,12 +41,6 @@ public:
     void disconnect() override;
 
 private:
-    // TODO Bartek change buffers to more memory efficnient structures
-    // TODO Bartek for example boost::circular_buffer
-    std::deque<std::vector<uint8_t>> sendBuffer;
-    std::deque<std::vector<uint8_t>> readBuffer;
-
-    boost::asio::io_service& ioService;
     boost::asio::ip::udp::socket socket;
     boost::asio::ip::udp::endpoint remoteEndpoint;
 

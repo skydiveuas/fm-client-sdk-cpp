@@ -8,6 +8,11 @@ ISocket::Listener::~Listener()
 {
 }
 
+ISocket::ISocket(boost::asio::io_service& _ioService) :
+    ioService(_ioService)
+{
+}
+
 ISocket::~ISocket()
 {
 }

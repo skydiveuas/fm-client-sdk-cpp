@@ -3,6 +3,7 @@
 #include "core/list_devices.pb.h"
 
 #include "event/input/user/Operate.hpp"
+#include "event/input/user/CloseChannels.hpp"
 #include "event/input/user/RequestControl.hpp"
 
 #include "event/output/ProcedureRejected.hpp"
@@ -39,14 +40,14 @@ void PilotSimulator::start(const std::string& coreAddress,
         channelsReq.set_security(Security::TLS);
         channelsReq.set_priority(Priority::NEAR_REAL_TIME);
         channels.push_back(channelsReq);
-        channelsReq.set_id(8);
-        channelsReq.set_protocol(Protocol::TCP);
-        channelsReq.set_security(Security::PLAIN_TEXT);
-        channels.push_back(channelsReq);
-        channelsReq.set_id(11);
-        channelsReq.set_protocol(Protocol::UDP);
-        channelsReq.set_security(Security::PLAIN_TEXT);
-        channels.push_back(channelsReq);
+//        channelsReq.set_id(8);
+//        channelsReq.set_protocol(Protocol::TCP);
+//        channelsReq.set_security(Security::TLS);
+//        channels.push_back(channelsReq);
+//        channelsReq.set_id(11);
+//        channelsReq.set_protocol(Protocol::UDP);
+//        channelsReq.set_security(Security::PLAIN_TEXT);
+//        channels.push_back(channelsReq);
         std::shared_ptr<const Operate> o = std::make_shared<const Operate>(deviceId, channels);
         ioService.post([this, o] ()
         {
@@ -74,7 +75,6 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
         break;
 
     case FacadeEvent::HANDOVER_DONE:
-        emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 5);
         break;
 
     case FacadeEvent::PROCEDURE_REJECTED:
@@ -83,7 +83,7 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
         if (rejected.getCommand() == Command::REQUEST_CONTROL)
         {
             trace("HO request rejected: " + rejected.getMessage());
-            emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 10);
+            emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 5);
         }
         break;
     }
