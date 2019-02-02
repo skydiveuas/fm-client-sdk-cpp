@@ -66,8 +66,8 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
     {
     case FacadeEvent::CHANNELS_OPENED:
     {
-        emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 10);
-        //emmitEvent(std::make_shared<RequestControl>(1), 10);
+        //emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 10);
+        emmitEvent(std::make_shared<RequestControl>(1), 10);
         break;
     }
 
