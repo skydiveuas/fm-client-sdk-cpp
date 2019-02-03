@@ -179,7 +179,6 @@ void ClientBackend::proceedGrpcQueue()
         switch (static_cast<GrpcTag>(reinterpret_cast<long>(tag)))
         {
         case READ:
-            trace("GRPC received");
             using event::input::connection::Received;
             client.notifyEvent(std::make_shared<const Received>(toRead));
             toRead = std::make_shared<ControlMessage>();
@@ -189,7 +188,6 @@ void ClientBackend::proceedGrpcQueue()
         case WRITE:
         {
             std::lock_guard<std::mutex> sendLockGuard(sendLock);
-            trace("GRPC write done");
             if (sendingQueue.empty())
             {
                 sending.store(false);
