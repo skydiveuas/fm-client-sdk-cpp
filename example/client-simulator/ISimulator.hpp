@@ -55,6 +55,8 @@ private:
     void addChannels(const fm::event::output::ChannelsOpened&);
 
     void trafficSimulator();
+
+    std::string timestamp() const;
 };
 
 #endif // ISIMULATOR_HPP

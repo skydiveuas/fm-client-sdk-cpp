@@ -81,27 +81,26 @@ void ClientBackend::openFacadeConnection(const std::string& host, const int port
     channel = grpc::CreateCustomChannel(address, creds, args);
     stub = FacadeService::NewStub(channel);
 
-    stream = stub->Asynccontrol(&context, &completionQueue, (void*)3);
+    stream = stub->Asynccontrol(&context, &completionQueue, reinterpret_cast<void*>(OPEN));
 
     void* connectTag;
     bool ok = false;
 
     auto deadline = std::chrono::system_clock::now() +
-        std::chrono::seconds(5);
+            std::chrono::seconds(5);
 
     completionQueue.AsyncNext(&connectTag, &ok, deadline);
 
-    if (ok && connectTag == (void*)3)
+    if (ok && connectTag == reinterpret_cast<void*>(OPEN))
     {
         trace("Connection to the facade established");
 
-        readTag = (void*)1;
-
         toRead = std::make_shared<ControlMessage>();
-        stream->Read(toRead.get(), readTag);
+        stream->Read(toRead.get(), reinterpret_cast<void*>(READ));
 
+        sending.store(false);
         keepReader.store(true);
-        ioService.post(std::bind(&ClientBackend::proceedReader, this));
+        ioService.post(std::bind(&ClientBackend::proceedGrpcQueue, this));
     }
     else
     {
@@ -109,29 +108,29 @@ void ClientBackend::openFacadeConnection(const std::string& host, const int port
     }
 }
 
-
 void ClientBackend::closeFacadeConnection()
 {
     keepReader.store(false);
 
     grpc::Status status = grpc::Status::CANCELLED;
-    stream->Finish(&status, (void*)4);
+    stream->Finish(&status, reinterpret_cast<void*>(CLOSE));
 
     void* releaseTag;
     bool ok = false;
 
     auto deadline = std::chrono::system_clock::now() +
-        std::chrono::seconds(5);
+            std::chrono::seconds(5);
 
     completionQueue.AsyncNext(&releaseTag, &ok, deadline);
 
-    // cleanup reading and sending tasks
-    while (releaseTag == (void*)1 || releaseTag == (void*)2)
+    // cleanup reading and writing tasks
+    while (releaseTag == reinterpret_cast<void*>(READ) ||
+           releaseTag == reinterpret_cast<void*>(WRITE))
     {
         completionQueue.AsyncNext(&releaseTag, &ok, deadline);
     }
 
-    if (ok && releaseTag == (void*)4)
+    if (ok && releaseTag == reinterpret_cast<void*>(CLOSE))
     {
         trace("Connection to the facede closed with: " +
               (status.ok() ? "success" : status.error_message()));
@@ -145,7 +144,16 @@ void ClientBackend::closeFacadeConnection()
 void ClientBackend::send(const ClientMessage& message)
 {
     trace("Sending:\n" + message.DebugString() + " @ " + client.getStateName());
-    stream->Write(message, (void*)2);
+    std::lock_guard<std::mutex> sendLockGuard(sendLock);
+    if (sending.load())
+    {
+        sendingQueue.push_back(message);
+    }
+    else
+    {
+        sending.store(true);
+        stream->Write(message, reinterpret_cast<void*>(WRITE));
+    }
 }
 
 void ClientBackend::trace(const std::string& message)
@@ -153,31 +161,52 @@ void ClientBackend::trace(const std::string& message)
     listener.trace(message);
 }
 
-void ClientBackend::proceedReader()
+void ClientBackend::proceedGrpcQueue()
 {
     void* tag;
     bool ok = false;
 
     auto deadline = std::chrono::system_clock::now() +
-        std::chrono::milliseconds(1);
+            std::chrono::milliseconds(1);
 
     // Bartek is it really the best way of handling asynchronous reading?
-    // Bartek this will cause posting a lot of 1ms long dummy tasks...
-    // Bartek would prefere smth similaral as Java-style onNext callback
+    // Bartek this will cause posting a lot dummy tasks if nothing is ongoing...
+    // Bartek would prefer smth similaral as Java-style onNext callback
     completionQueue.AsyncNext(&tag, &ok, deadline);
 
-    if (ok && tag == readTag)
+    if (ok)
     {
-        using event::input::connection::Received;
-        client.notifyEvent(std::make_shared<const Received>(toRead));
+        switch (static_cast<GrpcTag>(reinterpret_cast<long>(tag)))
+        {
+        case READ:
+            trace("GRPC received");
+            using event::input::connection::Received;
+            client.notifyEvent(std::make_shared<const Received>(toRead));
+            toRead = std::make_shared<ControlMessage>();
+            stream->Read(toRead.get(), reinterpret_cast<void*>(READ));
+            break;
 
-        toRead = std::make_shared<ControlMessage>();
-        stream->Read(toRead.get(), readTag);
+        case WRITE:
+        {
+            std::lock_guard<std::mutex> sendLockGuard(sendLock);
+            trace("GRPC write done");
+            if (sendingQueue.empty())
+            {
+                sending.store(false);
+            }
+            else
+            {
+                stream->Write(sendingQueue.front(), reinterpret_cast<void*>(WRITE));
+                sendingQueue.pop_front();
+            }
+            break;
+        }
+        }
     }
 
     if (keepReader.load())
     {
-        ioService.post(std::bind(&ClientBackend::proceedReader, this));
+        ioService.post(std::bind(&ClientBackend::proceedGrpcQueue, this));
     }
 }
 

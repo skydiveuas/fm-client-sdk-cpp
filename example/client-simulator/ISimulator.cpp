@@ -2,7 +2,9 @@
 
 #include "event/input/user/UserEvent.hpp"
 
-#include <time.h>
+#include <ctime>
+#include <chrono>
+#include <iomanip>
 
 using namespace fm;
 using namespace fm::event;
@@ -82,7 +84,7 @@ std::unique_ptr<Location> ISimulator::getLocation()
 
 void ISimulator::trace(const std::string& message)
 {
-    std::cout << "Client trace: [" << message << "]" << std::endl;
+    std::cout << timestamp() << " Client trace: [" << message << "]" << std::endl;
 }
 
 void ISimulator::addChannels(const ChannelsOpened& event)
@@ -117,4 +119,20 @@ void ISimulator::trafficSimulator()
         }
     }
     trace("Closing traffic thread");
+}
+
+std::string ISimulator::timestamp() const
+{
+    // Bartek WTF is this??
+    static constexpr auto milisFormat = "%03d";
+    static constexpr auto timeFormat = "%H.%M.%S:";
+    static char ms[4] = "";
+    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    const auto fraction = now - std::chrono::time_point_cast<std::chrono::seconds>(now);
+    const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(fraction);
+    const time_t cnow = std::chrono::system_clock::to_time_t(now);
+    sprintf(ms, milisFormat, static_cast<int>(milliseconds.count()));
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&cnow), timeFormat) << std::string(ms);
+    return ss.str();
 }

@@ -54,6 +54,14 @@ public:
     void trace(const std::string& message);
 
 private:
+    enum GrpcTag
+    {
+        OPEN,
+        CLOSE,
+        WRITE,
+        READ,
+    };
+
     IClient& client;
     IClient::Listener& listener;
 
@@ -69,10 +77,13 @@ private:
     std::unique_ptr<
     com::fleetmgr::interfaces::facade::control::FacadeService::Stub> stub;
 
+    std::mutex sendLock;
+    std::atomic<bool> sending;
+    std::deque<com::fleetmgr::interfaces::facade::control::ClientMessage> sendingQueue;
+
     grpc::ClientContext context;
     grpc::CompletionQueue completionQueue;
 
-    void* readTag;
     std::shared_ptr<com::fleetmgr::interfaces::facade::control::ControlMessage> toRead;
 
     std::unique_ptr<grpc::ClientAsyncReaderWriter<
@@ -81,7 +92,7 @@ private:
 
     std::atomic<bool> keepReader;
 
-    void proceedReader();
+    void proceedGrpcQueue();
 
     void readCert(const std::string&, std::string&);
 };
