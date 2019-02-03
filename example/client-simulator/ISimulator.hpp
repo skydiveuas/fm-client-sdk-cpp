@@ -56,7 +56,7 @@ private:
 
     void trafficSimulator();
 
-    std::string timestamp() const;
+    static std::string timestamp();
 };
 
 #endif // ISIMULATOR_HPP

@@ -84,7 +84,7 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
         if (rejected.getCommand() == Command::REQUEST_CONTROL)
         {
             trace("HO request rejected: " + rejected.getMessage());
-            emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 5);
+            emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 2);
         }
         break;
     }

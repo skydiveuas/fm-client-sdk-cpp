@@ -144,7 +144,7 @@ void ClientBackend::closeFacadeConnection()
 void ClientBackend::send(const ClientMessage& message)
 {
     trace("Sending:\n" + message.DebugString() + " @ " + client.getStateName());
-    std::lock_guard<std::mutex> sendLockGuard(sendLock);
+    std::lock_guard<std::mutex> sendingLockGuard(sendingLock);
     if (sending.load())
     {
         sendingQueue.push_back(message);
@@ -187,7 +187,7 @@ void ClientBackend::proceedGrpcQueue()
 
         case WRITE:
         {
-            std::lock_guard<std::mutex> sendLockGuard(sendLock);
+            std::lock_guard<std::mutex> sendingLockGuard(sendingLock);
             if (sendingQueue.empty())
             {
                 sending.store(false);

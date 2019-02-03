@@ -24,7 +24,7 @@ ISimulator::ChannelListener::ChannelListener(std::unordered_map<long, fm::traffi
 void ISimulator::ChannelListener::onReceived(fm::traffic::IChannel* channel, const fm::traffic::socket::ISocket::DataPacket dataPacket)
 {
     std::string message(reinterpret_cast<const char*>(dataPacket.first), dataPacket.second);
-    std::cout << "Received[" << channel->getId() << "]: " << message << std::endl;
+    std::cout << ISimulator::timestamp() << " Received[" << channel->getId() << "]: " << message << std::endl;
 }
 
 void ISimulator::ChannelListener::onClosed(fm::traffic::IChannel* channel)
@@ -115,13 +115,14 @@ void ISimulator::trafficSimulator()
         for (auto& pair : channels)
         {
             std::string message("Channel id: " + std::to_string(pair.first) + " test message " + std::to_string(clock()));
+            std::cout << ISimulator::timestamp() << "  Sending[" << std::to_string(pair.first) << "]: " << message << std::endl;
             pair.second->send(traffic::socket::ISocket::DataPacket(reinterpret_cast<const uint8_t*>(message.data()), message.size()));
         }
     }
     trace("Closing traffic thread");
 }
 
-std::string ISimulator::timestamp() const
+std::string ISimulator::timestamp()
 {
     // Bartek WTF is this??
     static constexpr auto milisFormat = "%03d";

@@ -77,7 +77,7 @@ private:
     std::unique_ptr<
     com::fleetmgr::interfaces::facade::control::FacadeService::Stub> stub;
 
-    std::mutex sendLock;
+    std::mutex sendingLock;
     std::atomic<bool> sending;
     std::deque<com::fleetmgr::interfaces::facade::control::ClientMessage> sendingQueue;
 
