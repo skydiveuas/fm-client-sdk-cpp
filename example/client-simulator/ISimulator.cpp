@@ -115,7 +115,7 @@ void ISimulator::trafficSimulator()
         for (auto& pair : channels)
         {
             std::string message("Channel id: " + std::to_string(pair.first) + " test message " + std::to_string(clock()));
-            std::cout << ISimulator::timestamp() << "  Sending[" << std::to_string(pair.first) << "]: " << message << std::endl;
+            std::cout << ISimulator::timestamp() << " Sending[" << std::to_string(pair.first) << "]: " << message << std::endl;
             pair.second->send(traffic::socket::ISocket::DataPacket(reinterpret_cast<const uint8_t*>(message.data()), message.size()));
         }
     }

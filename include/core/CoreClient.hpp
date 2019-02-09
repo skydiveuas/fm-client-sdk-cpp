@@ -9,6 +9,8 @@
 
 #include "google/protobuf/util/json_util.h"
 
+#include <functional>
+
 namespace fm
 {
 
@@ -23,7 +25,9 @@ namespace core
 class CoreClient
 {
 public:
-    CoreClient(const std::string&, const int, const std::string&);
+    typedef std::function<void(const std::string&)> Log;
+
+    CoreClient(Log, const std::string&, const int, const std::string&);
 
     com::fleetmgr::interfaces::AttachResponse attach();
 
@@ -32,6 +36,8 @@ public:
     com::fleetmgr::interfaces::ListDevicesResponse listDevices();
 
 private:
+   Log log;
+
    https::HttpsClient client;
 
    google::protobuf::util::JsonParseOptions options;

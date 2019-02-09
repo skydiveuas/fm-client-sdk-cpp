@@ -2,6 +2,7 @@
 #define FM_CORE_HTTPS_HTTPSCLIENT_HPP
 
 #include <string>
+#include <functional>
 
 namespace fm
 {
@@ -19,6 +20,8 @@ namespace https {
 class HttpsClient
 {
 public:
+    typedef std::function<void(const std::string&)> Log;
+
     enum Method
     {
         POST,
@@ -27,11 +30,13 @@ public:
         DELETE,
     };
 
-    HttpsClient(const std::string&, const int, const std::string&);
+    HttpsClient(Log, const std::string&, const int, const std::string&);
 
     std::string execute(const std::string&, const Method, const std::string&);
 
 protected:
+    Log log;
+
     const std::string host;
     const int port;
 

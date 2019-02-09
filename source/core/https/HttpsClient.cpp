@@ -22,7 +22,8 @@ using tcp = net::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 using namespace fm;
 using namespace fm::core::https;
 
-HttpsClient::HttpsClient(const std::string& _host, const int _port, const std::string& _apiKey) :
+HttpsClient::HttpsClient(Log _log, const std::string& _host, const int _port, const std::string& _apiKey) :
+    log(_log),
     host(_host),
     port(_port),
     apiKey(_apiKey)
@@ -31,7 +32,7 @@ HttpsClient::HttpsClient(const std::string& _host, const int _port, const std::s
 
 std::string HttpsClient::execute(const std::string& path, Method method, const std::string& body)
 {
-    std::cout << "Executing HTTPS request, path:" << path << " body: " << (body.empty() ? "-" : body) << std::endl;
+    log("Executing HTTPS request, path:" + path + " body: " + (body.empty() ? "-" : body));
 
     constexpr int version = 11;
 

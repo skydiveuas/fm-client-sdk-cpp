@@ -3,6 +3,7 @@
 #include "core/list_devices.pb.h"
 
 #include "event/input/user/Operate.hpp"
+#include "event/input/user/OpenChannels.hpp"
 #include "event/input/user/CloseChannels.hpp"
 #include "event/input/user/RequestControl.hpp"
 
@@ -44,10 +45,6 @@ void PilotSimulator::start(const std::string& coreAddress,
         channelsReq.set_protocol(Protocol::TCP);
         channelsReq.set_security(Security::TLS);
         channels.push_back(channelsReq);
-        channelsReq.set_id(11);
-        channelsReq.set_protocol(Protocol::TCP);
-        channelsReq.set_security(Security::TLS);
-        channels.push_back(channelsReq);
         std::shared_ptr<const Operate> o = std::make_shared<const Operate>(deviceId, channels);
         ioService.post([this, o] ()
         {
@@ -67,7 +64,8 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
     case FacadeEvent::CHANNELS_OPENED:
     {
         //emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 10);
-        emmitEvent(std::make_shared<RequestControl>(1), 10);
+        //emmitEvent(std::make_shared<RequestControl>(1), 10);
+        emmitEvent(std::make_shared<CloseChannels>(std::vector<long>{8}), 10);
         break;
     }
 

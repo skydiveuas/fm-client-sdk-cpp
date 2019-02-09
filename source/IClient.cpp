@@ -32,6 +32,7 @@ IClient::IClient(const std::string& coreAddress,
     IStateMachine([&_listener] (const std::string& msg) { _listener.trace(msg); }, _ioService),
     listener(_listener)
 {
-    std::unique_ptr<core::CoreClient> core = std::make_unique<core::CoreClient>(coreAddress, corePort, key);
+    std::unique_ptr<core::CoreClient> core = std::make_unique<core::CoreClient>(
+                [&_listener] (const std::string& msg) { _listener.trace(msg); }, coreAddress, corePort, key);
     backend = std::make_unique<backend::ClientBackend>(*this, listener, _ioService, core.release());
 }

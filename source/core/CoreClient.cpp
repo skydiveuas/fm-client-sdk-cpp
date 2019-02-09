@@ -7,8 +7,9 @@ using namespace com::fleetmgr::interfaces;
 
 using namespace google::protobuf::util;
 
-CoreClient::CoreClient(const std::string& coreAddress, const int corePort, const std::string& key) :
-    client(coreAddress, corePort, key)
+CoreClient::CoreClient(Log _log, const std::string& coreAddress, const int corePort, const std::string& key) :
+    log(_log),
+    client(_log, coreAddress, corePort, key)
 {
     options.ignore_unknown_fields = true;
 }
@@ -17,7 +18,7 @@ AttachResponse CoreClient::attach()
 {
     std::string responseString =
             client.execute("/gateway/devices/attach", https::HttpsClient::POST, "");
-    std::cout << "Attach response: " << responseString << std::endl;
+    log("Attach response: " + responseString);
     AttachResponse response;
     Status status = JsonStringToMessage(responseString, &response, options);
     if (Status::OK == status)
@@ -36,7 +37,7 @@ OperateResponse CoreClient::operate(const OperateRequest& operateRequest)
     MessageToJsonString(operateRequest, &body);
     std::string responseString =
             client.execute("/gateway/pilots/operate", https::HttpsClient::POST, body);
-    std::cout << "Operate response (" << body << "): " << responseString << std::endl;
+    log("Operate response (" + body + "): " + responseString);
     OperateResponse response;
     Status status = JsonStringToMessage(responseString, &response, options);
     if (Status::OK == status)
@@ -53,7 +54,7 @@ ListDevicesResponse CoreClient::listDevices()
 {
     std::string responseString =
             client.execute("/devices/", https::HttpsClient::GET, "");
-    std::cout << "List devices response: " << responseString << std::endl;
+    log("List devices response: " + responseString);
     std::string responseJson = "{ \"devices\" : " + responseString + " }";
     ListDevicesResponse response;
     Status status = JsonStringToMessage(responseJson, &response, options);
