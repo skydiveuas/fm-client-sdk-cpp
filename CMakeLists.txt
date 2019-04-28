@@ -6,8 +6,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-option(USE_BOOST "Use Boost implementations." ON)
-
 find_package(Protobuf REQUIRED)
 find_package(GRPC REQUIRED)
 find_package(OpenSSL REQUIRED)
