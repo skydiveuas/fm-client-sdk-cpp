@@ -1,6 +1,8 @@
 #ifndef FM_CORE_HTTPS_HTTPSCLIENT_HPP
 #define FM_CORE_HTTPS_HTTPSCLIENT_HPP
 
+#include <boost/property_tree/ptree.hpp>
+
 #include <string>
 #include <functional>
 
@@ -30,7 +32,7 @@ public:
         DELETE,
     };
 
-    HttpsClient(Log, const std::string&, const int, const std::string&);
+    HttpsClient(boost::property_tree::ptree&, Log);
 
     std::string execute(const std::string&, const Method, const std::string&);
 

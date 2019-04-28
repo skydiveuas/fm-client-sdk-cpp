@@ -9,6 +9,8 @@
 
 #include "google/protobuf/util/json_util.h"
 
+#include <boost/property_tree/ptree.hpp>
+
 #include <functional>
 
 namespace fm
@@ -27,7 +29,7 @@ class CoreClient
 public:
     typedef std::function<void(const std::string&)> Log;
 
-    CoreClient(Log, const std::string&, const int, const std::string&);
+    CoreClient(boost::property_tree::ptree&, Log);
 
     com::fleetmgr::interfaces::AttachResponse attach();
 

@@ -16,6 +16,7 @@
 #include "common/location.pb.h"
 
 #include <boost/asio.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <memory>
 #include <mutex>
@@ -63,7 +64,9 @@ public:
 protected:
     std::unique_ptr<backend::ClientBackend> backend;
 
-    IClient(const std::string&, const int, const std::string&, Listener&, boost::asio::io_service&);
+    IClient(boost::asio::io_service&, boost::property_tree::ptree&, Listener&);
+
+    static std::unique_ptr<boost::property_tree::ptree> loadConfiguration(const std::string&);
 
 private:
     IClient() = delete;

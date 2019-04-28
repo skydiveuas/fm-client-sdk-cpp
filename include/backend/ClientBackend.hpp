@@ -32,7 +32,7 @@ namespace backend
 class ClientBackend
 {
 public:
-    ClientBackend(IClient&, IClient::Listener&, boost::asio::io_service&, core::CoreClient*);
+    ClientBackend(IClient&, IClient::Listener&, boost::asio::io_service&, boost::property_tree::ptree&, core::CoreClient*);
 
     core::CoreClient& getCore();
 
@@ -41,6 +41,8 @@ public:
     ChannelsHandler& getChannelsHandler();
 
     boost::asio::io_service& getIoService();
+
+    boost::property_tree::ptree& getConfiguration();
 
     std::unique_ptr<com::fleetmgr::interfaces::Location> getLocation();
 
@@ -66,6 +68,8 @@ private:
     IClient::Listener& listener;
 
     boost::asio::io_service& ioService;
+
+    boost::property_tree::ptree configuration;
     
     std::unique_ptr<core::CoreClient> core;
 

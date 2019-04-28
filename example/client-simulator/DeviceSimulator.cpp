@@ -16,11 +16,9 @@ DeviceSimulator::DeviceSimulator(boost::asio::io_service& ioService) :
 {
 }
 
-void DeviceSimulator::start(const std::string& coreAddress,
-                            const int corePort,
-                            const std::string& key)
+void DeviceSimulator::start(const std::string& configPath)
 {
-    device = std::make_unique<fm::Device>(coreAddress, corePort, key, *this, ioService);
+    device = std::make_unique<fm::Device>(ioService, configPath, *this);
     ioService.post([this] ()
     {
         device->notifyEvent(std::make_shared<const UserEvent>(UserEvent::ATTACH));

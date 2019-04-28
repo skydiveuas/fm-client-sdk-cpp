@@ -2,17 +2,23 @@
 
 int main(int, char**)
 {
-    const std::string apiKey = "ApiKey ft0aiBWIiLTZspHjc3n8oL07lhsGh3FrGoFYLhVHjJs208uN0xoWZESNQRO7x8XuP+CsAP0fxx5H6Z3zB9J2O/fUFuXeL0ymjseAc/PmFvV8YUVEzZM7bdpOUGw5PXfU";
-
-    const std::string host = "192.168.1.69";
-    const int port = 60010;
+    const std::string configPath = "../client-simulator/deviceSim-config.ini";
 
     std::cout << "Staring Device simulation..." << std::endl;
 
     boost::asio::io_service ioService;
 
     DeviceSimulator simulator(ioService);
-    simulator.start(host, port, apiKey);
+
+    try
+    {
+        simulator.start(configPath);
+    }
+    catch (std::exception& e)
+    {
+        std::cout << "Could not start simulator: " << e.what() << std::endl;
+        return -1;
+    }
 
     while (not simulator.isDone())
     {

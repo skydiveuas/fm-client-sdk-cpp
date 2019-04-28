@@ -30,7 +30,7 @@ target_link_libraries(client-simulator
 
 foreach (_target deviceSim pilotSim)
 
-    add_executable("1-${_target}" "${_target}.cpp")
+    add_executable("1-${_target}" "${_target}.cpp" "${_target}-config.ini")
     target_link_libraries("1-${_target}"
         ${Boost_LIBRARIES}
         client-simulator

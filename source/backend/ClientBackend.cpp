@@ -22,10 +22,15 @@ using namespace fm::traffic::socket;
 using namespace com::fleetmgr::interfaces;
 using namespace com::fleetmgr::interfaces::facade::control;
 
-ClientBackend::ClientBackend(IClient& _client, IClient::Listener& _listener, boost::asio::io_service& _ioService, core::CoreClient* _core) :
+ClientBackend::ClientBackend(IClient& _client,
+                             IClient::Listener& _listener,
+                             boost::asio::io_service& _ioService,
+                             boost::property_tree::ptree& _configuration,
+                             core::CoreClient* _core) :
     client(_client),
     listener(_listener),
     ioService(_ioService),
+    configuration(_configuration),
     core(_core),
     heartbeatHandler(*this),
     channelsHandler(*this),
@@ -56,6 +61,11 @@ boost::asio::io_service& ClientBackend::getIoService()
     return ioService;
 }
 
+boost::property_tree::ptree& ClientBackend::getConfiguration()
+{
+    return configuration;
+}
+
 std::unique_ptr<Location> ClientBackend::getLocation()
 {
     return listener.getLocation();
@@ -68,7 +78,7 @@ void ClientBackend::openFacadeConnection(const std::string& host, const int port
     std::string address = host + ":" + std::to_string(port);
 
     std::string cert;
-    readCert("grpc_facade.crt", cert);
+    readCert(configuration.get<std::string>("cert.facadeCertPath"), cert);
 
     grpc::SslCredentialsOptions sslOpts;
     sslOpts.pem_root_certs = cert;
@@ -219,5 +229,9 @@ void ClientBackend::readCert(const std::string& filename, std::string& data)
         ss << file.rdbuf();
         file.close();
         data = ss.str();
+    }
+    else
+    {
+        trace("Could not open cert file! Path: " + filename);
     }
 }

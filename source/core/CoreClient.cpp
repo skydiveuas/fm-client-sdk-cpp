@@ -7,9 +7,9 @@ using namespace com::fleetmgr::interfaces;
 
 using namespace google::protobuf::util;
 
-CoreClient::CoreClient(Log _log, const std::string& coreAddress, const int corePort, const std::string& key) :
+CoreClient::CoreClient(boost::property_tree::ptree& _configuration, Log _log) :
     log(_log),
-    client(_log, coreAddress, corePort, key)
+    client(_configuration, _log)
 {
     options.ignore_unknown_fields = true;
 }

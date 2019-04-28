@@ -14,7 +14,9 @@ namespace fm
 class Device : public IClient
 {
 public:
-    Device(const std::string&, const int, const std::string&, Listener&, boost::asio::io_service&);
+    Device(boost::asio::io_service&, boost::property_tree::ptree&, Listener&);
+
+    Device(boost::asio::io_service&, const std::string&, Listener&);
 
     std::string toString() const override;
 };

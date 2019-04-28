@@ -5,14 +5,19 @@
 using namespace fm;
 using namespace fm::state;
 
-Device::Device(const std::string& coreAddress,
-               const int corePort,
-               const std::string& key,
-               Listener& listener,
-               boost::asio::io_service& ioService) :
-    IClient(coreAddress, corePort, key, listener, ioService)
+Device::Device(boost::asio::io_service& _ioService,
+               boost::property_tree::ptree& _configuration,
+               Listener& _listener) :
+    IClient(_ioService, _configuration, _listener)
 {
-    setState(std::make_unique<device::Disconnected>(*this, listener, *backend.get()));
+    setState(std::make_unique<device::Disconnected>(*this, _listener, *backend.get()));
+}
+
+Device::Device(boost::asio::io_service& _ioService,
+               const std::string& _path,
+               Listener& _listener) :
+    Device(_ioService, *loadConfiguration(_path), _listener)
+{
 }
 
 std::string Device::toString() const

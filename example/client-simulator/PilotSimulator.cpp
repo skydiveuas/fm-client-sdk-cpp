@@ -25,11 +25,9 @@ PilotSimulator::PilotSimulator(boost::asio::io_service& ioService) :
 {
 }
 
-void PilotSimulator::start(const std::string& coreAddress,
-                           const int corePort,
-                           const std::string& key)
+void PilotSimulator::start(const std::string& configPath)
 {
-    pilot = std::make_unique<fm::Pilot>(coreAddress, corePort, key, *this, ioService);
+    pilot = std::make_unique<fm::Pilot>(ioService, configPath, *this);
     ListDevicesResponse response = pilot->listConnectedDevices();
     if (response.devices_size() > 0)
     {

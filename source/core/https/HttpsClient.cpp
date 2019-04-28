@@ -22,11 +22,11 @@ using tcp = net::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 using namespace fm;
 using namespace fm::core::https;
 
-HttpsClient::HttpsClient(Log _log, const std::string& _host, const int _port, const std::string& _apiKey) :
+HttpsClient::HttpsClient(boost::property_tree::ptree& _configuration, Log _log) :
     log(_log),
-    host(_host),
-    port(_port),
-    apiKey(_apiKey)
+    host(_configuration.get<std::string>("core.host")),
+    port(_configuration.get<int>("core.port")),
+    apiKey(_configuration.get<std::string>("key.apiKey"))
 {
 }
 

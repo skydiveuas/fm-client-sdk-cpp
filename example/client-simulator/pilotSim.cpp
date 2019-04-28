@@ -2,10 +2,7 @@
 
 int main(int, char**)
 {
-    const std::string apiKey = "ApiKey at+ya8GFZpVrCAKHKMi4DhiP5YS14uk6OR+NHR85Tdf7ocxdO4BoMSmoqAEjVexyoeh1hzNfpcrZX1aQOQa/ijCj0gY+F5//QQOJZRGWQUFLUP3WlkyVFzKhD26Faane";
-
-    const std::string host = "192.168.1.69";
-    const int port = 60010;
+    const std::string configPath = "../client-simulator/pilotSim-config.ini";
 
     std::cout << "Staring Pilot simulation..." << std::endl;
 
@@ -15,7 +12,7 @@ int main(int, char**)
 
     try
     {
-        simulator.start(host, port, apiKey);
+        simulator.start(configPath);
     }
     catch (std::exception& e)
     {
