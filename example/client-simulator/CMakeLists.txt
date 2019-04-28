@@ -9,8 +9,10 @@ find_package(Boost REQUIRED COMPONENTS system)
 set(_FM_SDK_DIR ${PROJECT_SOURCE_DIR}/../..)
 add_subdirectory(${_FM_SDK_DIR} ${_FM_SDK_DIR}/lib)
 
-include_directories(${_FM_SDK_DIR}/include)
-include_directories(${_FM_SDK_DIR}/generated)
+include_directories(
+    ${_FM_SDK_DIR}/include
+    ${_FM_SDK_DIR}/generated
+    )
 
 set(FILES
     ${PROJECT_SOURCE_DIR}/ISimulator.cpp
