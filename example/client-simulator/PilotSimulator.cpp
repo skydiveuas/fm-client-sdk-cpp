@@ -37,13 +37,13 @@ void PilotSimulator::start(const std::string& coreAddress,
         std::vector<ChannelRequest> channels;
         ChannelRequest channelsReq;
         channelsReq.set_id(1);
-        channelsReq.set_protocol(Protocol::TCP);
-        channelsReq.set_security(Security::TLS);
+        channelsReq.set_protocol(Protocol::UDP);
+        channelsReq.set_security(Security::PLAIN_TEXT);
         channelsReq.set_priority(Priority::NEAR_REAL_TIME);
         channels.push_back(channelsReq);
         channelsReq.set_id(8);
-        channelsReq.set_protocol(Protocol::TCP);
-        channelsReq.set_security(Security::TLS);
+        channelsReq.set_protocol(Protocol::UDP);
+        channelsReq.set_security(Security::PLAIN_TEXT);
         channels.push_back(channelsReq);
         std::shared_ptr<const Operate> o = std::make_shared<const Operate>(deviceId, channels);
         ioService.post([this, o] ()
@@ -62,12 +62,13 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
     switch (event->getType())
     {
     case FacadeEvent::CHANNELS_OPENED:
-    {
         //emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 10);
-        //emmitEvent(std::make_shared<RequestControl>(1), 10);
-        emmitEvent(std::make_shared<CloseChannels>(std::vector<long>{8}), 10);
+        emmitEvent(std::make_shared<CloseChannels>(std::vector<long>{8}), 5);
         break;
-    }
+
+    case FacadeEvent::CHANNELS_CLOSING:
+        emmitEvent(std::make_shared<RequestControl>(1), 5);
+        break;
 
     case FacadeEvent::HANDOVER_ACCEPTED:
         emmitEvent(std::make_shared<UserEvent>(UserEvent::CONTROL_READY), 0);
@@ -82,7 +83,7 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
         if (rejected.getCommand() == Command::REQUEST_CONTROL)
         {
             trace("HO request rejected: " + rejected.getMessage());
-            emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 2);
+            emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 5);
         }
         break;
     }

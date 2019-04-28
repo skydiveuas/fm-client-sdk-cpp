@@ -1,4 +1,5 @@
-mkdir -p generated
+rm -rf generated
+mkdir generated
 protoc -I fm-client-proto --cpp_out=generated fm-client-proto/common/channel_management.proto
 protoc -I fm-client-proto --cpp_out=generated fm-client-proto/common/channel_validation.proto
 protoc -I fm-client-proto --cpp_out=generated fm-client-proto/common/connection_state.proto
