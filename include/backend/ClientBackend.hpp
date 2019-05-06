@@ -46,7 +46,9 @@ public:
 
     std::unique_ptr<com::fleetmgr::interfaces::Location> getLocation();
 
-    void openFacadeConnection(const std::string&, const int);
+    void openFacadeConnection(const com::fleetmgr::interfaces::AttachResponse&);
+
+    void openFacadeConnection(const com::fleetmgr::interfaces::OperateResponse&);
 
     void closeFacadeConnection();
 
@@ -95,6 +97,8 @@ private:
     com::fleetmgr::interfaces::facade::control::ControlMessage>> stream;
 
     std::atomic<bool> keepReader;
+
+    void openFacadeConnection(const std::string&, const int, const int, const bool);
 
     void proceedGrpcQueue();
 

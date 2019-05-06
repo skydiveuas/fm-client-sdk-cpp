@@ -71,51 +71,22 @@ std::unique_ptr<Location> ClientBackend::getLocation()
     return listener.getLocation();
 }
 
-void ClientBackend::openFacadeConnection(const std::string& host, const int port)
+void ClientBackend::openFacadeConnection(const com::fleetmgr::interfaces::AttachResponse& attachResponse)
 {
-    trace("Opening facade channel at: " + host + ":" + std::to_string(port));
+    openFacadeConnection(
+                attachResponse.host(),
+                attachResponse.unsafeport(),
+                attachResponse.tlsport(),
+                configuration.get<bool>("facade.useTls"));
+}
 
-    std::string address = host + ":" + std::to_string(port);
-
-    std::string cert;
-    readCert(configuration.get<std::string>("cert.facadeCertPath"), cert);
-
-    grpc::SslCredentialsOptions sslOpts;
-    sslOpts.pem_root_certs = cert;
-
-    grpc::ChannelArguments args;
-    args.SetSslTargetNameOverride("localhost");
-
-    std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
-
-    channel = grpc::CreateCustomChannel(address, creds, args);
-    stub = FacadeService::NewStub(channel);
-
-    stream = stub->Asynccontrol(&context, &completionQueue, reinterpret_cast<void*>(OPEN));
-
-    void* connectTag;
-    bool ok = false;
-
-    auto deadline = std::chrono::system_clock::now() +
-            std::chrono::seconds(5);
-
-    completionQueue.AsyncNext(&connectTag, &ok, deadline);
-
-    if (ok && connectTag == reinterpret_cast<void*>(OPEN))
-    {
-        trace("Connection to the facade established");
-
-        toRead = std::make_shared<ControlMessage>();
-        stream->Read(toRead.get(), reinterpret_cast<void*>(READ));
-
-        sending.store(false);
-        keepReader.store(true);
-        ioService.post(std::bind(&ClientBackend::proceedGrpcQueue, this));
-    }
-    else
-    {
-        throw std::runtime_error("Could not connect to the facade");
-    }
+void ClientBackend::openFacadeConnection(const com::fleetmgr::interfaces::OperateResponse& operateResponse)
+{
+    openFacadeConnection(
+                operateResponse.host(),
+                operateResponse.unsafeport(),
+                operateResponse.tlsport(),
+                configuration.get<bool>("facade.useTls"));
 }
 
 void ClientBackend::closeFacadeConnection()
@@ -171,6 +142,62 @@ void ClientBackend::send(const ClientMessage& message)
 void ClientBackend::trace(const std::string& message)
 {
     listener.trace(message);
+}
+
+void ClientBackend::openFacadeConnection(const std::string& host, const int unsafePort, const int tlsPort, const bool useTls)
+{
+    if (useTls)
+    {
+        std::string address = host + ":" + std::to_string(tlsPort);
+        trace("Opening TLS facade channel at: " + address);
+
+        std::string cert;
+        readCert(configuration.get<std::string>("cert.facadeCertPath"), cert);
+
+        grpc::SslCredentialsOptions sslOpts;
+        sslOpts.pem_root_certs = cert;
+
+        grpc::ChannelArguments args;
+        args.SetSslTargetNameOverride("localhost");
+
+        std::shared_ptr<grpc::ChannelCredentials> creds = grpc::SslCredentials(sslOpts);
+
+        channel = grpc::CreateCustomChannel(address, creds, args);
+    }
+    else
+    {
+        std::string address = host + ":" + std::to_string(unsafePort);
+        trace("Opening Unsafe facade channel at: " + address);
+
+        channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
+    }
+
+    stub = FacadeService::NewStub(channel);
+    stream = stub->Asynccontrol(&context, &completionQueue, reinterpret_cast<void*>(OPEN));
+
+    void* connectTag;
+    bool ok = false;
+
+    auto deadline = std::chrono::system_clock::now() +
+            std::chrono::seconds(5);
+
+    completionQueue.AsyncNext(&connectTag, &ok, deadline);
+
+    if (ok && connectTag == reinterpret_cast<void*>(OPEN))
+    {
+        trace("Connection to the facade established");
+
+        toRead = std::make_shared<ControlMessage>();
+        stream->Read(toRead.get(), reinterpret_cast<void*>(READ));
+
+        sending.store(false);
+        keepReader.store(true);
+        ioService.post(std::bind(&ClientBackend::proceedGrpcQueue, this));
+    }
+    else
+    {
+        throw std::runtime_error("Could not connect to the facade");
+    }
 }
 
 void ClientBackend::proceedGrpcQueue()

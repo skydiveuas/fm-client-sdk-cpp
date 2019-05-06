@@ -37,9 +37,7 @@ IState::State Connecting::start()
     {
         AttachResponse attachResponse = backend.getCore().attach();
 
-        backend.openFacadeConnection(
-                    attachResponse.host(),
-                    attachResponse.port());
+        backend.openFacadeConnection(attachResponse);
 
         ClientMessage message;
         message.set_command(Command::SETUP);

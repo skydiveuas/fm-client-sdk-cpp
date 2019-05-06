@@ -38,9 +38,7 @@ IState::State Connecting::start()
         request.set_requesteddeviceid(deviceId);
         OperateResponse operateResponse = backend.getCore().operate(request);
 
-        backend.openFacadeConnection(
-                    operateResponse.host(),
-                    operateResponse.port());
+        backend.openFacadeConnection(operateResponse);
 
         ClientMessage message;
         message.set_command(Command::SETUP);
