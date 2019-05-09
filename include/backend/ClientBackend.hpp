@@ -14,6 +14,7 @@
 #include <grpc++/grpc++.h>
 
 #include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <memory>
 #include <thread>
@@ -55,7 +56,7 @@ public:
     void send(const com::fleetmgr::interfaces::facade::control::ClientMessage& message);
 
     // TODO Bartek argument should be changed to recursive template for optimization
-    void trace(const std::string& message);
+    void log(const boost::log::trivial::severity_level&, const std::string& message);
 
 private:
     enum GrpcTag

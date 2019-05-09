@@ -1,6 +1,8 @@
 #ifndef FM_BACKEND_HEARTBEATHANDLER_HPP
 #define FM_BACKEND_HEARTBEATHANDLER_HPP
 
+#include <boost/log/trivial.hpp>
+
 #include "facade/control/facade_service.pb.h"
 
 namespace fm
@@ -34,7 +36,7 @@ private:
 
     void onTimeout();
 
-    void trace(const std::string& message);
+    void log(const boost::log::trivial::severity_level&, const std::string& message);
 };
 
 } // backend

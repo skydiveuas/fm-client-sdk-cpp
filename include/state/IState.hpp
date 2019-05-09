@@ -59,7 +59,7 @@ protected:
 
     State defaultMessageHandle(const com::fleetmgr::interfaces::facade::control::ControlMessage&);
 
-    void trace(const std::string& message);
+    void log(const boost::log::trivial::severity_level&, const std::string&);
 };
 
 } // state

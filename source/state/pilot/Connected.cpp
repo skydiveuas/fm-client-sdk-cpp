@@ -4,6 +4,8 @@
 
 #include "backend/ClientBackend.hpp"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::state;
 using namespace fm::state::pilot;
@@ -43,7 +45,7 @@ IState::State Connected::onNewState(IState::State newState)
 {
     while (nullptr != newState.get())
     {
-        listener.trace("Connected transition: " + internalState->toString() + " -> " + newState->toString());
+        listener.log(severity_level::info, "Connected transition: " + internalState->toString() + " -> " + newState->toString());
         internalState.swap(newState);
         newState.reset(internalState->start().release());
     }

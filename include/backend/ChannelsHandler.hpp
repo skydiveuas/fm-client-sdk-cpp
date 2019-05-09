@@ -6,6 +6,7 @@
 #include "common/channel_management.pb.h"
 
 #include <boost/asio/ssl.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <memory>
 #include <vector>
@@ -52,7 +53,7 @@ private:
 
     std::unordered_map<long, traffic::ChannelImpl> channels;
 
-    void trace(const std::string& message);
+    void log(const boost::log::trivial::severity_level&, const std::string&);
 
     std::shared_ptr<traffic::socket::ISocket> buildSocket(const com::fleetmgr::interfaces::ChannelResponse&);
 };

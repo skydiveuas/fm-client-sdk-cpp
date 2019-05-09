@@ -12,6 +12,8 @@
 
 #include "core/attach.pb.h"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::state;
 using namespace fm::state::pilot;
@@ -53,7 +55,7 @@ IState::State Connecting::start()
     }
     catch(std::exception const& e)
     {
-        trace("Operate error: " + std::string(e.what()));
+        log(severity_level::error, std::string(e.what()));
         listener.onEvent(std::make_shared<const FacadeEvent>(FacadeEvent::ERROR));
         return std::make_unique<Disconnected>(*this);
     }

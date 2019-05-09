@@ -6,6 +6,8 @@
 #include "traffic/socket/TlsTcpSocket.hpp"
 #include "traffic/socket/UdpSocket.hpp"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::backend;
 using namespace fm::traffic::socket;
@@ -60,7 +62,7 @@ std::vector<traffic::IChannel*> ChannelsHandler::validateChannels(const std::vec
     std::vector<traffic::IChannel*> result;
     for (const ChannelResponse& c : toValidate)
     {
-        trace("Opening channel id: " + std::to_string(c.id()));
+        log(severity_level::info, "Opening channel id: " + std::to_string(c.id()));
         std::shared_ptr<ISocket> socket = buildSocket(c);
         auto pair = channels.emplace(std::piecewise_construct,
                                      std::forward_as_tuple(c.id()),
@@ -68,12 +70,12 @@ std::vector<traffic::IChannel*> ChannelsHandler::validateChannels(const std::vec
         traffic::ChannelImpl* channel = &pair.first->second;
         if (channel->open(c.host(), c.port(), c.key()))
         {
-            trace("Channel id: " + std::to_string(c.id()) + " validated");
+            log(severity_level::info, "Channel id: " + std::to_string(c.id()) + " validated");
             result.push_back(channel);
         }
         else
         {
-            trace("Error!, Could not validate channel id: " + std::to_string(c.id()));
+            log(severity_level::error, "Could not validate channel id: " + std::to_string(c.id()));
             channels.erase(c.id());
         }
     }
@@ -87,13 +89,13 @@ void ChannelsHandler::closeChannels(const std::vector<long>& toClose)
         auto c = channels.find(id);
         if (c != channels.end())
         {
-            trace("Closing channel, id: " + std::to_string(id));
+            log(severity_level::info, "Closing channel, id: " + std::to_string(id));
             c->second.close();
             channels.erase(c);
         }
         else
         {
-            trace("Warning, trying to close not existing channel, id: " + std::to_string(id));
+            log(severity_level::warning, "Trying to close not existing channel, id: " + std::to_string(id));
         }
     }
 }
@@ -102,7 +104,7 @@ void ChannelsHandler::closeAllChannels()
 {
     for (auto& pair : channels)
     {
-        trace("Closing channel, id: " + std::to_string(pair.first));
+        log(severity_level::info, "Closing channel, id: " + std::to_string(pair.first));
         pair.second.close();
     }
     channels.clear();
@@ -112,7 +114,7 @@ void ChannelsHandler::setOwned(const std::vector<long>& owned)
 {
     for (long id : owned)
     {
-        trace("Setting channel, id: " + std::to_string(id) + " as owned");
+        log(severity_level::info, "Setting channel, id: " + std::to_string(id) + " as owned");
         channels.find(id)->second.setOwned(true);
     }
 }
@@ -122,9 +124,9 @@ void ChannelsHandler::setOwned(long id, bool owned)
     channels.find(id)->second.setOwned(owned);
 }
 
-void ChannelsHandler::trace(const std::string& message)
+void ChannelsHandler::log(const severity_level& level, const std::string& message)
 {
-    backend.trace(message);
+    backend.log(level, message);
 }
 
 std::shared_ptr<ISocket> ChannelsHandler::buildSocket(const ChannelResponse& parameters)

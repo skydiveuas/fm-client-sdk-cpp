@@ -9,6 +9,8 @@
 
 #include "event/output/ProcedureRejected.hpp"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::event;
 
@@ -80,7 +82,7 @@ void PilotSimulator::handleEvent(const std::shared_ptr<const FacadeEvent> event)
         const ProcedureRejected& rejected = reinterpret_cast<const ProcedureRejected&>(*event);
         if (rejected.getCommand() == Command::REQUEST_CONTROL)
         {
-            trace("HO request rejected: " + rejected.getMessage());
+            log(severity_level::info, "HO request rejected: " + rejected.getMessage());
             emmitEvent(std::make_shared<UserEvent>(UserEvent::RELEASE), 5);
         }
         break;

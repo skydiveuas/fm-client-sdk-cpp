@@ -37,7 +37,7 @@ public:
 
     std::unique_ptr<com::fleetmgr::interfaces::Location> getLocation() override;
 
-    void trace(const std::string&) override;
+    void log(const boost::log::trivial::severity_level&, const std::string&) override;
 
 protected:
     boost::asio::io_service& ioService;
@@ -55,8 +55,6 @@ private:
     void addChannels(const fm::event::output::ChannelsOpened&);
 
     void trafficSimulator();
-
-    static std::string timestamp();
 };
 
 #endif // ISIMULATOR_HPP

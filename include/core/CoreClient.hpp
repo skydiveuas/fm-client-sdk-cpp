@@ -10,6 +10,7 @@
 #include "google/protobuf/util/json_util.h"
 
 #include <boost/property_tree/ptree.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <functional>
 
@@ -27,7 +28,7 @@ namespace core
 class CoreClient
 {
 public:
-    typedef std::function<void(const std::string&)> Log;
+    typedef std::function<void(const boost::log::trivial::severity_level&, const std::string&)> Log;
 
     CoreClient(boost::property_tree::ptree&, Log);
 

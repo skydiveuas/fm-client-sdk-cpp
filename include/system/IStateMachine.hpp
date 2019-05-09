@@ -5,6 +5,7 @@
 #include "system/Timer.hpp"
 
 #include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <functional>
 #include <memory>
@@ -28,7 +29,7 @@ class IStateMachine
 {
 public:
     typedef std::function<void(void)> Task;
-    typedef std::function<void(const std::string&)> Log;
+    typedef std::function<void(const boost::log::trivial::severity_level&, const std::string&)> Log;
 
     IStateMachine(Log _log, boost::asio::io_service& _ioService) :
         log(_log),
@@ -73,7 +74,8 @@ public:
 
     void defer(const std::shared_ptr<const _Event> event)
     {
-        log("Deffering: " + event->toString() + " @ " + state->toString());
+        log(boost::log::trivial::severity_level::info,
+            "Deffering: " + event->toString() + " @ " + state->toString());
         deferred.push_back(event);
     }
 
@@ -83,7 +85,8 @@ public:
         {
             std::shared_ptr<const _Event> event = deferred.front();
             deferred.pop_front();
-            log("Recalling: " + event->toString() + " @ " + state->toString() + ", remaining deferred events: " + std::to_string(deferred.size()));
+            log(boost::log::trivial::severity_level::info,
+                "Recalling: " + event->toString() + " @ " + state->toString() + ", remaining deferred events: " + std::to_string(deferred.size()));
             notifyEvent(event);
         }
     }
@@ -136,11 +139,11 @@ private:
 
     void handleEvent(const std::shared_ptr<const _Event> event)
     {
-        log("Handling: " + event->toString() + " @ " + state->toString());
+        log(boost::log::trivial::severity_level::info, "Handling: " + event->toString() + " @ " + state->toString());
         std::unique_ptr<IState<_Event>> newState = state->handleEvent(event);
         while (nullptr != newState.get())
         {
-            log("Transition: " + state->toString() + " -> " + newState->toString());
+            log(boost::log::trivial::severity_level::info, "Transition: " + state->toString() + " -> " + newState->toString());
             state.swap(newState);
             newState.reset(state->start().release());
         }

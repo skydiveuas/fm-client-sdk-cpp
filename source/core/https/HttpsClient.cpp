@@ -19,6 +19,8 @@ namespace net = boost::asio;    // from <boost/asio.hpp>
 namespace ssl = net::ssl;       // from <boost/asio/ssl.hpp>
 using tcp = net::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::core::https;
 
@@ -32,7 +34,7 @@ HttpsClient::HttpsClient(boost::property_tree::ptree& _configuration, Log _log) 
 
 std::string HttpsClient::execute(const std::string& path, Method method, const std::string& body)
 {
-    log("Executing HTTPS request, path:" + path + " body: " + (body.empty() ? "-" : body));
+    log(severity_level::info, "Executing HTTPS request, path:" + path + " body: " + (body.empty() ? "-" : body));
 
     constexpr int version = 11;
 
@@ -113,7 +115,7 @@ std::string HttpsClient::execute(const std::string& path, Method method, const s
 
     if(ec && ec.value() != 1)
     {
-        std::cout << "ddd" << ec.value() << ec.message() << std::endl;
+        log(severity_level::error, "Executing HTTPS request, path:" + path + " body: " + ec.message());
         throw beast::system_error{ec};
     }
 

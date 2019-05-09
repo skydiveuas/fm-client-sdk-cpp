@@ -15,6 +15,8 @@
 #include <fstream>
 #include <sstream>
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::backend;
 using namespace fm::traffic::socket;
@@ -91,7 +93,7 @@ void ClientBackend::openFacadeConnection(const com::fleetmgr::interfaces::Operat
 
 void ClientBackend::closeFacadeConnection()
 {
-    trace("Closing facade connection");
+    log(severity_level::info, "Closing facade connection");
 
     keepReader.store(false);
 
@@ -115,7 +117,7 @@ void ClientBackend::closeFacadeConnection()
 
     if (ok && releaseTag == reinterpret_cast<void*>(CLOSE))
     {
-        trace("Connection to the facede closed with: " +
+        log(severity_level::info, "Connection to the facede closed with: " +
               (status.ok() ? "success" : status.error_message()));
     }
     else
@@ -126,7 +128,7 @@ void ClientBackend::closeFacadeConnection()
 
 void ClientBackend::send(const ClientMessage& message)
 {
-    trace("Sending:\n" + message.DebugString() + " @ " + client.getStateName());
+    log(severity_level::info, "Sending:\n" + message.DebugString() + " @ " + client.getStateName());
     std::lock_guard<std::mutex> sendingLockGuard(sendingLock);
     if (sending.load())
     {
@@ -139,9 +141,9 @@ void ClientBackend::send(const ClientMessage& message)
     }
 }
 
-void ClientBackend::trace(const std::string& message)
+void ClientBackend::log(const severity_level& level, const std::string& message)
 {
-    listener.trace(message);
+    listener.log(level, message);
 }
 
 void ClientBackend::openFacadeConnection(const std::string& host, const int unsafePort, const int tlsPort, const bool useTls)
@@ -149,7 +151,7 @@ void ClientBackend::openFacadeConnection(const std::string& host, const int unsa
     if (useTls)
     {
         std::string address = host + ":" + std::to_string(tlsPort);
-        trace("Opening TLS facade channel at: " + address);
+        log(severity_level::info, "Opening TLS facade channel at: " + address);
 
         std::string cert;
         readCert(configuration.get<std::string>("cert.facadeCertPath"), cert);
@@ -167,7 +169,7 @@ void ClientBackend::openFacadeConnection(const std::string& host, const int unsa
     else
     {
         std::string address = host + ":" + std::to_string(unsafePort);
-        trace("Opening Unsafe facade channel at: " + address);
+        log(severity_level::info, "Opening Unsafe facade channel at: " + address);
 
         channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
     }
@@ -185,7 +187,7 @@ void ClientBackend::openFacadeConnection(const std::string& host, const int unsa
 
     if (ok && connectTag == reinterpret_cast<void*>(OPEN))
     {
-        trace("Connection to the facade established");
+        log(severity_level::info, "Connection to the facade established");
 
         toRead = std::make_shared<ControlMessage>();
         stream->Read(toRead.get(), reinterpret_cast<void*>(READ));
@@ -259,6 +261,6 @@ void ClientBackend::readCert(const std::string& filename, std::string& data)
     }
     else
     {
-        trace("Could not open cert file! Path: " + filename);
+        log(severity_level::info, "Could not open cert file! Path: " + filename);
     }
 }

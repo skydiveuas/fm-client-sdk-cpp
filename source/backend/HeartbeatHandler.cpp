@@ -2,6 +2,8 @@
 
 #include "backend/ClientBackend.hpp"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::backend;
 
@@ -39,7 +41,7 @@ void HeartbeatHandler::onTimeout()
 
 }
 
-void HeartbeatHandler::trace(const std::string& message)
+void HeartbeatHandler::log(const severity_level& level, const std::string& message)
 {
-    backend.trace(message);
+    backend.log(level, message);
 }

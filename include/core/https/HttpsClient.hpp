@@ -2,6 +2,7 @@
 #define FM_CORE_HTTPS_HTTPSCLIENT_HPP
 
 #include <boost/property_tree/ptree.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <string>
 #include <functional>
@@ -22,7 +23,7 @@ namespace https {
 class HttpsClient
 {
 public:
-    typedef std::function<void(const std::string&)> Log;
+    typedef std::function<void(const boost::log::trivial::severity_level&, const std::string&)> Log;
 
     enum Method
     {

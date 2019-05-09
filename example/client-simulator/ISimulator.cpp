@@ -6,6 +6,8 @@
 #include <chrono>
 #include <iomanip>
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::event;
 
@@ -24,7 +26,7 @@ ISimulator::ChannelListener::ChannelListener(std::unordered_map<long, fm::traffi
 void ISimulator::ChannelListener::onReceived(fm::traffic::IChannel* channel, const fm::traffic::socket::ISocket::DataPacket dataPacket)
 {
     std::string message(reinterpret_cast<const char*>(dataPacket.first), dataPacket.second);
-    std::cout << ISimulator::timestamp() << " Received[" << channel->getId() << "]: " << message << std::endl;
+    std::cout << "Received[" << std::to_string(channel->getId()) << "]: " << message;
 }
 
 void ISimulator::ChannelListener::onClosed(fm::traffic::IChannel* channel)
@@ -63,7 +65,7 @@ bool ISimulator::isDone()
 
 void ISimulator::onEvent(const std::shared_ptr<const FacadeEvent> event)
 {
-    trace("Handling FacadeEvent: " + event->toString());
+    log(severity_level::info, "Handling FacadeEvent: " + event->toString());
     switch (event->getType())
     {
     case FacadeEvent::CHANNELS_OPENED:
@@ -82,9 +84,9 @@ std::unique_ptr<Location> ISimulator::getLocation()
     return location;
 }
 
-void ISimulator::trace(const std::string& message)
+void ISimulator::log(const severity_level& level, const std::string& message)
 {
-    std::cout << timestamp() << " Client trace: [" << message << "]" << std::endl;
+    //BOOST_LOG_TRIVIAL(level) << message;
 }
 
 void ISimulator::addChannels(const ChannelsOpened& event)
@@ -114,26 +116,10 @@ void ISimulator::trafficSimulator()
         }
         for (auto& pair : channels)
         {
-            std::string message("Channel id: " + std::to_string(pair.first) + " test message " + std::to_string(clock()));
-            std::cout << ISimulator::timestamp() << " Sending[" << std::to_string(pair.first) << "]: " << message << std::endl;
-            pair.second->send(traffic::socket::ISocket::DataPacket(reinterpret_cast<const uint8_t*>(message.data()), message.size()));
+//            std::string message("Channel id: " + std::to_string(pair.first) + " test message " + std::to_string(clock()));
+//            std::cout << ISimulator::timestamp() << " Sending[" << std::to_string(pair.first) << "]: " << message << std::endl;
+//            pair.second->send(traffic::socket::ISocket::DataPacket(reinterpret_cast<const uint8_t*>(message.data()), message.size()));
         }
     }
-    trace("Closing traffic thread");
-}
-
-std::string ISimulator::timestamp()
-{
-    // Bartek WTF is this??
-    static constexpr auto milisFormat = "%03d";
-    static constexpr auto timeFormat = "%H.%M.%S:";
-    static char ms[4] = "";
-    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    const auto fraction = now - std::chrono::time_point_cast<std::chrono::seconds>(now);
-    const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(fraction);
-    const time_t cnow = std::chrono::system_clock::to_time_t(now);
-    sprintf(ms, milisFormat, static_cast<int>(milliseconds.count()));
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&cnow), timeFormat) << std::string(ms);
-    return ss.str();
+    log(severity_level::info, "Closing traffic thread");
 }

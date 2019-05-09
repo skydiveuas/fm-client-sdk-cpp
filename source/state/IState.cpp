@@ -4,6 +4,8 @@
 
 #include "backend/ClientBackend.hpp"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::state;
 
@@ -63,7 +65,7 @@ void IState::send(const ClientMessage& message)
 
 IState::State IState::defaultEventHandle(const std::string& eventName)
 {
-    trace("Unexpected: " + eventName + " @ " + toString());
+    log(severity_level::warning, "Unexpected: " + eventName + " @ " + toString());
     return nullptr;
 }
 
@@ -75,12 +77,12 @@ IState::State IState::defaultMessageHandle(const ControlMessage& message)
     }
     else
     {
-        trace("Unexpected ControlMessage received:\n" + message.DebugString() + " @ " + toString());
+        log(severity_level::warning, "Unexpected ControlMessage received:\n" + message.DebugString() + " @ " + toString());
     }
     return nullptr;
 }
 
-void IState::trace(const std::string& message)
+void IState::log(const severity_level& level, const std::string& message)
 {
-    listener.trace(message);
+    listener.log(level, message);
 }

@@ -1,5 +1,7 @@
 #include "core/CoreClient.hpp"
 
+using boost::log::trivial::severity_level;
+
 using namespace fm;
 using namespace fm::core;
 
@@ -18,7 +20,7 @@ AttachResponse CoreClient::attach()
 {
     std::string responseString =
             client.execute("/gateway/devices/attach", https::HttpsClient::POST, "");
-    log("Attach response: " + responseString);
+    log(severity_level::info, "Attach response: " + responseString);
     AttachResponse response;
     Status status = JsonStringToMessage(responseString, &response, options);
     if (Status::OK == status)
@@ -37,7 +39,7 @@ OperateResponse CoreClient::operate(const OperateRequest& operateRequest)
     MessageToJsonString(operateRequest, &body);
     std::string responseString =
             client.execute("/gateway/pilots/operate", https::HttpsClient::POST, body);
-    log("Operate response (" + body + "): " + responseString);
+    log(severity_level::info, "Operate response (" + body + "): " + responseString);
     OperateResponse response;
     Status status = JsonStringToMessage(responseString, &response, options);
     if (Status::OK == status)
@@ -54,7 +56,7 @@ ListDevicesResponse CoreClient::listDevices()
 {
     std::string responseString =
             client.execute("/devices/", https::HttpsClient::GET, "");
-    log("List devices response: " + responseString);
+    log(severity_level::info, "List devices response: " + responseString);
     std::string responseJson = "{ \"devices\" : " + responseString + " }";
     ListDevicesResponse response;
     Status status = JsonStringToMessage(responseJson, &response, options);

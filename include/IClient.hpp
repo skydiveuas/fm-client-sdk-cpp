@@ -17,6 +17,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <memory>
 #include <mutex>
@@ -52,12 +53,12 @@ public:
 
         virtual std::unique_ptr<com::fleetmgr::interfaces::Location> getLocation() = 0;
 
-        virtual void trace(const std::string&) = 0;
+        virtual void log(const boost::log::trivial::severity_level&, const std::string&) = 0;
     };
 
     virtual ~IClient();
 
-    void trace(const std::string& message);
+    void log(const boost::log::trivial::severity_level&, const std::string&);
 
     virtual std::string toString() const = 0;
 
