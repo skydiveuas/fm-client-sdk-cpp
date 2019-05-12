@@ -128,7 +128,14 @@ void ClientBackend::closeFacadeConnection()
 
 void ClientBackend::send(const ClientMessage& message)
 {
-    log(severity_level::info, "Sending:\n" + message.DebugString() + " @ " + client.getStateName());
+    severity_level level = severity_level::info;
+    if (message.command() == Command::HEARTBEAT)
+    {
+        // for heartbeats set lower trace level, there will be a lot of this messages
+        level = severity_level::debug;
+    }
+    log(level, "Sending:\n" + message.DebugString() + " @ " + client.getStateName());
+
     std::lock_guard<std::mutex> sendingLockGuard(sendingLock);
     if (sending.load())
     {
