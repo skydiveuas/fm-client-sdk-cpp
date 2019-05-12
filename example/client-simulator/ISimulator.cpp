@@ -86,7 +86,7 @@ std::unique_ptr<Location> ISimulator::getLocation()
 
 void ISimulator::log(const severity_level& level, const std::string& message)
 {
-    //BOOST_LOG_TRIVIAL(level) << message;
+    std::cout << timestamp() << " " << levelString(level) << " " << message << std::endl;
 }
 
 void ISimulator::addChannels(const ChannelsOpened& event)
@@ -116,10 +116,40 @@ void ISimulator::trafficSimulator()
         }
         for (auto& pair : channels)
         {
-//            std::string message("Channel id: " + std::to_string(pair.first) + " test message " + std::to_string(clock()));
-//            std::cout << ISimulator::timestamp() << " Sending[" << std::to_string(pair.first) << "]: " << message << std::endl;
-//            pair.second->send(traffic::socket::ISocket::DataPacket(reinterpret_cast<const uint8_t*>(message.data()), message.size()));
+            std::string message("Channel id: " + std::to_string(pair.first) + " test message " + std::to_string(clock()));
+            log(severity_level::debug, "Sending[" + std::to_string(pair.first) + "]: " + message);
+            pair.second->send(traffic::socket::ISocket::DataPacket(reinterpret_cast<const uint8_t*>(message.data()), message.size()));
         }
     }
     log(severity_level::info, "Closing traffic thread");
+}
+
+std::string ISimulator::levelString(const severity_level& level) const
+{
+    switch (level)
+    {
+    case severity_level::trace:     return "trace  ";
+    case severity_level::debug:     return "debug  ";
+    case severity_level::info:      return "info   ";
+    case severity_level::warning:   return "warning";
+    case severity_level::error:     return "error  ";
+    case severity_level::fatal:     return "fatal  ";
+    }
+}
+
+std::string ISimulator::timestamp() const
+{
+    // Bartek WTF is this??
+    // Bartek even Boost does not provide serious solution.....:C
+    static constexpr auto milisFormat = "%03d";
+    static constexpr auto timeFormat = "%H.%M.%S:";
+    static char ms[4] = "";
+    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    const auto fraction = now - std::chrono::time_point_cast<std::chrono::seconds>(now);
+    const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(fraction);
+    const time_t cnow = std::chrono::system_clock::to_time_t(now);
+    sprintf(ms, milisFormat, static_cast<int>(milliseconds.count()));
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&cnow), timeFormat) << std::string(ms);
+    return ss.str();
 }

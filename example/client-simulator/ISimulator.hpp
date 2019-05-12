@@ -55,6 +55,9 @@ private:
     void addChannels(const fm::event::output::ChannelsOpened&);
 
     void trafficSimulator();
+
+    std::string levelString(const boost::log::trivial::severity_level& levelString) const;
+    std::string timestamp() const;
 };
 
 #endif // ISIMULATOR_HPP
