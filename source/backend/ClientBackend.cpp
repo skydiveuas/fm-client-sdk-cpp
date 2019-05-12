@@ -131,7 +131,7 @@ void ClientBackend::send(const ClientMessage& message)
     severity_level level = severity_level::info;
     if (message.command() == Command::HEARTBEAT)
     {
-        // for heartbeats set lower trace level, there will be a lot of this messages
+        // for heartbeats set lower trace level, there will be a lot of these messages
         level = severity_level::debug;
     }
     log(level, "Sending:\n" + message.DebugString() + " @ " + client.getStateName());
